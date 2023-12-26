@@ -1,12 +1,7 @@
 package Menu;
 
-import Archivos.Datos;
-import Visual.Principal;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -92,18 +87,10 @@ public class Nuevo extends JFrame {
                         && ConstNuevo.cedula.getText().equals("") && ConstNuevo.direccion.getText().equals("")) {
                     JOptionPane.showMessageDialog(null, "Faltan datos");
                 } else {
-                    try {
-                        Datos datos = new Datos();
-                        datos.setDatos(ConstNuevo.nombre.getText(), ConstNuevo.apellido.getText(), ConstNuevo.cedula.getText(), ConstNuevo.direccion.getText());
-                        datos.crear();
-                        datos.cargar();
-                        datos.leer();
                         dispose();
                         limpiarDatos();
                         band = true;
-                    } catch (IOException ex) {
-                        Logger.getLogger(Nuevo.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    
                 }    
             }
         });

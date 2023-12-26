@@ -1,6 +1,6 @@
 package Visual;
 
-import Archivos.Productos;
+import Datos.productos;
 import Menu.Nuevo;
 import java.awt.Color;
 import java.awt.Font;
@@ -8,14 +8,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -27,13 +29,13 @@ import javax.swing.table.DefaultTableModel;
 public class Principal extends JFrame {
 
     JPanel panelPrincipal;
-    Productos p = new Productos();
     double Precio = 0.0;
+    productos p = new productos();
     JLabel precio;
-    public static JLabel Nombre,Apellido,Direccion,Cedula;
-    String[] columna = {"Codigo", " Producto", "Precio", "Cantidad"};
+    JLabel Nombre, Apellido, Direccion, Cedula;
+    String[] columna = {"Codigo", " Producto", "Precio"};
     DefaultTableModel modelo = new DefaultTableModel(columna, 0);
-
+    
     public Principal() {
         setTitle("Sistema De Supermercado");
         setSize(1200, 700);
@@ -43,12 +45,9 @@ public class Principal extends JFrame {
     }
 
     private void run() {
-        p.ProductosCargar();
         Paneles();
         Etiquetas();
         Menu();
-        Cliente();
-        Productos();
         Tabla();
         Precio();
         IVA();
@@ -71,6 +70,23 @@ public class Principal extends JFrame {
         Titulo.setForeground(Color.black);
         Titulo.setBounds(350, 30, 500, 30);
         panelPrincipal.add(Titulo);
+        
+        JButton pagar = new JButton("Pagar");
+        
+        pagar.setBounds(1000,200,100,30);
+        panelPrincipal.add(pagar);
+        pagar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int opcion = JOptionPane.showConfirmDialog(null, "Quieres pagar la cantidad de: "
+                                + Precio+" $", "", JOptionPane.YES_OPTION);
+                
+                if(opcion== 0){
+                    JOptionPane.showMessageDialog(null, "Compra Exitosa");
+                    System.exit(0);
+                }
+            }
+        });
     }
 
     private void Menu() {
@@ -82,25 +98,9 @@ public class Principal extends JFrame {
 
         JMenuItem Nuevo = new JMenuItem("Nuevo      F1");
         opciones.add(Nuevo);
-        Nuevo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (e.getSource() == Nuevo) {
-                    Nuevo nuevo = new Nuevo();
-                    nuevo.setVisible(true);
-                }
-            }
-        });
 
         JMenuItem Cargar = new JMenuItem("Cargar     F2");
         opciones.add(Cargar);
-        Cargar.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (e.getSource() == Cargar) {
-                }
-            }
-        });
 
         addKeyListener(new KeyAdapter() {
             @Override
@@ -115,46 +115,29 @@ public class Principal extends JFrame {
         });
     }
 
-    private void Cliente() {
-        Nombre = new JLabel();
-        Nombre.setBounds(50, 30, 150, 20);
-        panelPrincipal.add(Nombre);
-
-        Apellido = new JLabel();
-        Apellido.setBounds(150, 30, 150, 20);
-        panelPrincipal.add(Apellido);
-
-        Cedula = new JLabel();
-        Cedula.setBounds(50, 60, 150, 20);
-        panelPrincipal.add(Cedula);
-
-        Direccion = new JLabel();
-        Direccion.setBounds(150, 60, 150, 20);
-        panelPrincipal.add(Direccion);
-    }
-
-    private void Productos() {
-        String[] categorias = {"Categoria", "Comida", "Limpieza"};
-        JLabel Productos = new JLabel("Productos");
-        Productos.setFont(new Font("calibri", 1, 15));
-        Productos.setForeground(Color.black);
-        Productos.setBounds(40, 130, 100, 20);
-        panelPrincipal.add(Productos);
-
-        JComboBox producto = new JComboBox(categorias);
-        producto.setBounds(70, 170, 120, 30);
-        panelPrincipal.add(producto);
-    }
-
     private void Tabla() {
-        
+
         JTable tabla = new JTable(modelo);
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBounds(0, 250, 1200, 350);
         panelPrincipal.add(scroll);
-        for (int i = 0; i < Productos.arreglo.length; i++) {
-            modelo.addRow(Productos.arreglo);
+
+        for (int i = 0; i < productos.Productos.length; i++) {
+            String[] aux = productos.Productos[i].split(",");
+            modelo.addRow(aux);
         }
+        tabla.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+                Precio += Double.parseDouble((String) tabla.getValueAt(e.getClickCount(), 2));
+                precio.removeAll();
+                precio.setText(Double.toString(Precio) + " $");
+                precio.revalidate();
+                precio.repaint();
+            }
+        });
     }
 
     private void Precio() {
@@ -182,7 +165,7 @@ public class Principal extends JFrame {
                 if (iva.isSelected()) {
                     Iva IVA = new Iva();
 
-                    Precio = IVA.IVA(1);
+                    Precio += IVA.IVA(1);
                     precio.removeAll();
                     precio.setText(Double.toString(Precio) + " $");
                     precio.revalidate();
@@ -201,7 +184,7 @@ public class Principal extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 if (siniva.isSelected()) {
                     Iva iva = new Iva();
-                    Precio = iva.IVA(0);
+                    Precio += iva.IVA(0);
                     precio.removeAll();
                     precio.setText(Double.toString(Precio) + " $");
                     precio.revalidate();
@@ -215,35 +198,52 @@ public class Principal extends JFrame {
         grupo1.add(siniva);
 
     }
-    
-    private void Busqueda(){
+
+    private void Busqueda() {
         JTextField buscar = new JTextField();
-        
-        buscar.setBounds(900,90,150,20);
+
+        buscar.setBounds(900, 90, 150, 20);
         panelPrincipal.add(buscar);
-        
+
         JButton botonBuscar = new JButton("Buscar");
-        botonBuscar.setBounds(1070,80,100,30);
+        botonBuscar.setBounds(1070, 80, 100, 30);
         panelPrincipal.add(botonBuscar);
         botonBuscar.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String texto = buscar.getText();
-                
+                for (int i = 0; i < productos.Productos.length; i++) {
+                    String[] aux = productos.Productos[i].split(",");
+                    String producto = aux[1];
+                    String pre = aux[2];
+                    if (texto.equals(producto)) {
+                        buscar.setText("");
+                        int opcion = JOptionPane.showConfirmDialog(null, "Producto Disponible, "
+                                + "¿Quieres Agregarlo", "", JOptionPane.YES_OPTION);
+
+                        if (opcion == 0) {
+                            Precio += Double.parseDouble(pre);
+                            precio.removeAll();
+                            precio.setText(Double.toString(Precio) + " $");
+                            precio.revalidate();
+                            precio.repaint();
+                        }
+                    }
+                }
             }
         });
     }
 
     private void Cantidades() {
         JLabel nombre = new JLabel("Cantidad: ");
-        
-        nombre.setBounds(950,50,100,20);
+
+        nombre.setBounds(950, 50, 100, 20);
         nombre.setFont(new Font("Calibri", 1, 20));
         panelPrincipal.add(nombre);
-        
+
         JSpinner cantidad = new JSpinner();
-        
-        cantidad.setBounds(1070,50,50,20);
+
+        cantidad.setBounds(1070, 50, 50, 20);
         panelPrincipal.add(cantidad);
     }
 }
