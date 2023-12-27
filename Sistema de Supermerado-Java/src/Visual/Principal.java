@@ -52,7 +52,6 @@ public class Principal extends JFrame {
         Precio();
         IVA();
         Busqueda();
-        Cantidades();
     }
 
     public void Paneles() {
@@ -232,18 +231,5 @@ public class Principal extends JFrame {
                 }
             }
         });
-    }
-
-    private void Cantidades() {
-        JLabel nombre = new JLabel("Cantidad: ");
-
-        nombre.setBounds(950, 50, 100, 20);
-        nombre.setFont(new Font("Calibri", 1, 20));
-        panelPrincipal.add(nombre);
-
-        JSpinner cantidad = new JSpinner();
-
-        cantidad.setBounds(1070, 50, 50, 20);
-        panelPrincipal.add(cantidad);
     }
 }
